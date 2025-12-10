@@ -311,6 +311,42 @@ def extract_skills(description):
 
 df['skills'] = df['description'].apply(extract_skills)
 
+# Extract job type
+def extract_job_type(description):
+    if pd.isna(description):
+        return 'Not Specified'
+    
+    description = description.lower()
+    if any(word in description for word in ['full time', 'full-time', 'permanent']):
+        return 'Full-time'
+    elif any(word in description for word in ['part time', 'part-time']):
+        return 'Part-time'
+    elif any(word in description for word in ['contract', 'contractor', 'freelance']):
+        return 'Contract'
+    elif any(word in description for word in ['intern', 'internship', 'trainee']):
+        return 'Internship'
+    else:
+        return 'Not Specified'
+
+df['job_type'] = df['description'].apply(extract_job_type)
+
+# Extract company size
+def extract_company_size(description):
+    if pd.isna(description):
+        return 'Unknown'
+    
+    description = description.lower()
+    if any(word in description for word in ['startup', 'small company', 'growing team']):
+        return 'Small'
+    elif any(word in description for word in ['medium', 'established', '100+ employees']):
+        return 'Medium'
+    elif any(word in description for word in ['large', 'multinational', 'global', 'fortune', '1000+ employees']):
+        return 'Large'
+    else:
+        return 'Unknown'
+
+df['company_size'] = df['description'].apply(extract_company_size)
+
 # Add useful metrics
 df['description_length'] = df['description'].str.len()
 df['is_remote'] = df['Regions'].str.contains('Remote').astype(int)
@@ -324,6 +360,8 @@ print(f"Total jobs: {len(df):,}")
 print(f"Jobs with salary info: {df['salary_mentioned'].notna().sum()}")
 print(f"Jobs with skills: {df['skills'].notna().sum()}")
 print(f"Remote jobs: {df['is_remote'].sum():,}")
+print(f"Job types: {df['job_type'].value_counts().to_dict()}")
+print(f"Company sizes: {df['company_size'].value_counts().to_dict()}")
 
 #drop unneeded columns
 df= df.drop(['degree'], axis=1)
